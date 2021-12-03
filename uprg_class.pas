@@ -14,24 +14,29 @@ uses
               class var FFile: String;
               class var FCode: TStringList;
 
-                FMethod_name:String; // =users
-                FMethod_api:String; //method.api=yes
-                FMethod_url:String; //method.url=yes
-                FMethod_form:String; //method.form=yes
-                FMethod_mobile:String; //method.mobile=yes
+              FMethod_name:String; // =users
+              FMethod_api:String; //method.api=yes
+              FMethod_url:String; //method.url=yes
+              FMethod_form:String; //method.form=yes
+              FMethod_mobile:String; //method.mobile=yes
 
-                FSql_base: String; //=default
-                FSql_table: String; //sql.table=usuarios
-                FSql_key: String; //sql.key=cd_usuario
-                FSql_singlefields: String; //sql.singlefields=
-                FSql_filters: String; //sql.filters=
-                FSql_order: String; //sql.order=
+              FSql_base: String; //=default
+              FSql_table: String; //sql.table=usuarios
+              FSql_key: String; //sql.key=cd_usuario
+              FSql_singlefields: String; //sql.singlefields=
+              FSql_filters: String; //sql.filters=
+              FSql_order: String; //sql.order=
 
              FApi_items: array of TPrgApiItems;
 
              class constructor Create;
              procedure fileProcess();
              procedure apiItemsProcess();
+             function GetSqlTable(): String;
+             procedure SetSqlTable( table: String );
+             function GetSqlKey(): String;
+             procedure SetSqlKey( key: String );
+
        public
              function routeList(): TStringList;
              procedure loadFile();
@@ -44,8 +49,8 @@ uses
              procedure preProcessWidth();
         published
                property name: String read GetName write SetName;
-
-
+               property sqlTable: String read GetSqlTable write SetSqlTable;
+               property sqlKey: String read GetSqlKey write SetSqlKey;
      end;
 
 implementation
@@ -81,6 +86,7 @@ procedure TPrgClass.loadFile();
 begin
   FPrgFile:= TStringList.create;
   FPrgFile.LoadFromFile( FFile );
+  preProcess();
   fileProcess();
 end;
 
@@ -114,6 +120,21 @@ begin
         writeln(FPrgFile[i]);
         writeln(name);
     end;
+
+    if ('sql.table'=lowercase(copy(FPrgFile[i], 0, 9))) then
+    begin
+        sqlTable:=trim( copy( FPrgFile[i], 11, 256 ) );
+        writeln(FPrgFile[i]);
+        writeln(sqlTable);
+    end;
+
+    if ('sql.key'=lowercase(copy(FPrgFile[i], 0, 7))) then
+    begin
+        sqlKey:=trim( copy( FPrgFile[i], 9, 256 ) );
+        writeln(FPrgFile[i]);
+        writeln(sqlKey);
+    end;
+
     if ('-start-'=lowercase(copy(FPrgFile[i], 0, 7))) then
     begin
         nLineCode:= i+1;
@@ -152,7 +173,6 @@ var
 begin
   // resolve pre process
   // preset, declarations, params, start data and definitions
-  preProcess();
   nLineCode:= 0;
   cLastItem:= '';
   FApi_items:= [];
@@ -183,6 +203,10 @@ begin
         if ( cParameterName = 'protected' ) then
         begin
             apiItem.isProtected:= ( cContent = 'true' );
+        end;
+        if ( cParameterName = 'verb' ) then
+        begin
+            apiItem.verb:= cContent;
         end;
         // end of api declaration, push to list
         if ( cParameterName = 'zeof' ) then
@@ -228,6 +252,26 @@ begin
        end;
     end;
   end;
+end;
+
+function TPrgClass.GetSqlTable(): String;
+begin
+  result:= FSql_Table;
+end;
+
+procedure TPrgClass.SetSqlTable( table: String );
+begin
+  FSql_Table:= table;
+end;
+
+function TPrgClass.GetSqlKey(): String;
+begin
+  result:= FSql_Key;
+end;
+
+procedure TPrgClass.SetSqlKey( key: String );
+begin
+  FSql_Key:= key;
 end;
 
 end.

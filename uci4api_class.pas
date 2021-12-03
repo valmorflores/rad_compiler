@@ -5,7 +5,7 @@ unit uci4api_class;
 interface
 
 uses
-  Classes, SysUtils, ubuilder_class;
+  Classes, SysUtils, ubuilder_class, uprg_class;
 
 type
 
@@ -16,8 +16,13 @@ type
               class constructor Create;
               procedure buildRoutes();
               procedure buildDatabase();
+              procedure setBuildClass( buildClass: TBuilderClass );
+              function getBuildClass(): TBuilderClass;
        public
              procedure build();
+       published
+            property builder: TBuilderClass read getBuildClass write setBuildClass;
+
      end;
 
 implementation
@@ -31,11 +36,14 @@ begin
 end;
 
 procedure TCi4ApiClass.build();
+var
+  prgList: array of TPrgClass;
 begin
   writeln('Build complete ' + _NAME + '...');
   writeln(FBuilder.ClassName);
   buildDatabase();
   buildRoutes();
+  FBuilder.getPrg;
 
 
 end;
@@ -48,8 +56,20 @@ end;
 
 procedure TCi4ApiClass.buildDatabase();
 begin
-  writeln('[' + _NAME + '] Build database');
 
+  writeln('[' + _NAME + '] Build database');
+  writeln('[' + ']' );
+
+end;
+
+procedure TCi4ApiClass.setBuildClass( buildClass: TBuilderClass );
+begin
+   FBuilder:= buildClass;
+end;
+
+function TCi4ApiClass.getBuildClass(): TBuilderClass;
+begin
+   result:= FBuilder;
 end;
 
 

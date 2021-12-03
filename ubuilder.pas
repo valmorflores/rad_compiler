@@ -27,6 +27,7 @@ begin
   builder.setRouteList( routeList );
   builder.showProject();
   ci4api:= TCi4ApiClass.create;
+  ci4api.builder:= builder;
   ci4api.build();
 
   {

@@ -6,6 +6,7 @@ interface
 
 uses
   Classes, SysUtils,
+   contnrs,
   uroute_class, uroutes, uprg_class;
 
 type
@@ -25,7 +26,9 @@ type
              procedure setRouteList( aRouteList: TRouteList );
              procedure loadProject();
              procedure showProject();
-
+             function getPrg(): TObjectList;
+        published
+             //projectFiles: array of TPrgClass  read FFilesPrg write FFilesPrg;
      end;
 
 implementation
@@ -80,6 +83,13 @@ end;
 procedure TBuilderClass.showProject();
 begin
   writeln(FFile);
+end;
+
+function TBuilderClass.getPrg(): TObjectList;
+begin
+   //FFilesPrg;
+   //result:= [];
+  result:= TObjectList.create;
 end;
 
 end.
