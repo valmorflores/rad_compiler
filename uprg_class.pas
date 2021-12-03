@@ -27,10 +27,11 @@ uses
                 FSql_filters: String; //sql.filters=
                 FSql_order: String; //sql.order=
 
-                FApi_items: array of TPrgApiItems;
+             FApi_items: array of TPrgApiItems;
 
-              class constructor Create;
+             class constructor Create;
              procedure fileProcess();
+             procedure apiItemsProcess();
        public
              function routeList(): TStringList;
              procedure loadFile();
@@ -39,7 +40,8 @@ uses
              function getFile(): String;
              function getName(): String;
              procedure setName( name: String );
-
+             procedure preProcess();
+             procedure preProcessWidth();
         published
                property name: String read GetName write SetName;
 
@@ -47,6 +49,7 @@ uses
      end;
 
 implementation
+
 
 class constructor TPrgClass.Create;
  begin
@@ -118,6 +121,8 @@ begin
     end;
   end;
 
+  apiItemsProcess();
+
   // -start- code
   FCode:= TStringList.create;
   if ( nLineCode>0 ) then
@@ -131,6 +136,98 @@ begin
       FCode:= slCode;
   end;
 
+end;
+
+{ Porcessamento de itens }
+procedure TPrgClass.apiItemsProcess();
+var
+  i: Integer;
+  nLineCode: integer;
+  slCode: TStringlist;
+  cItem: String;
+  cContent: String;
+  cParameterName: String;
+  apiItem: TPrgApiItems;
+  cLastItem: String;
+begin
+  // resolve pre process
+  // preset, declarations, params, start data and definitions
+  preProcess();
+  nLineCode:= 0;
+  cLastItem:= '';
+  FApi_items:= [];
+  for i:= 1 to FPrgFile.Count-1 do
+  begin
+    if ('api.'=lowercase(copy(FPrgFile[i], 0, 4))) then
+    begin
+        cItem:= copy(FPrgFile[i],0,256);
+        cContent:= copy(cItem,Pos('=',cItem)+1,256);
+        cItem:= copy(cItem,0,Pos('=',cItem)-1);
+        cItem:= copy(cItem,pos('[',cItem)+1);
+        cItem:= copy(cItem,0,pos(']',cItem)-1);
+        cParameterName:= copy(FPrgFile[i], Pos('].',FPrgFile[i])+2, 256 );
+        cParameterName:= copy(cParameterName,0,Pos('=',cParameterName)-1);
+        writeLn(cItem + '->' + cParameterName + '=>' + cContent);
+        if ( cItem <> cLastItem ) then
+        begin
+            apiItem:= TPrgApiItems.create;
+        end;
+        if ( cParameterName = 'path' ) then
+        begin
+            apiItem.path:= cContent;
+        end;
+        if ( cParameterName = 'function' ) then
+        begin
+            apiItem.functionName:= cContent;
+        end;
+        if ( cParameterName = 'protected' ) then
+        begin
+            apiItem.isProtected:= ( cContent = 'true' );
+        end;
+        // end of api declaration, push to list
+        if ( cParameterName = 'zeof' ) then
+        begin
+           setLength( FApi_items, StrToInt(cItem)+1 );
+           FApi_items[StrToInt(cItem)]:= apiItem;
+        end;
+    end;
+  end;
+end;
+
+procedure TPrgClass.preProcess();
+begin
+  preProcessWidth();
+end;
+
+procedure TPrgClass.preProcessWidth();
+var
+  i: integer;
+  cElement: String;
+  lonWith: boolean;
+begin
+  lonWith:= false;
+  for i:= 1 to FPrgFile.Count-1 do
+  begin
+    if ('with'=lowercase(copy(FPrgFile[i], 0, 4))) then
+    begin
+       cElement:= trim(copy(FPrgFile[i], 5, 255));
+       cElement:= trim(copy(cElement, 0, Pos(' ', cElement)-1));
+       lonWith:= true;
+    end
+    else if ( ( trim(FPrgFile[i])='}' ) and lonWith ) then
+    begin
+       writeln('-wend-');
+       lonWith:= false;
+    end
+    else if ( ( trim(FPrgFile[i]) <> '' ) and ( trim(FPrgFile[i]) <> '{' ) ) then
+    begin
+       if lonWith then
+       begin
+          FPrgFile[i]:= cElement + '.' + trim( FPrgFile[i] );
+          writeln('->with: ' +FPrgFile[i]);
+       end;
+    end;
+  end;
 end;
 
 end.
