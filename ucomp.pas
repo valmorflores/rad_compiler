@@ -8,8 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
   { you can add units after this }
-  uconst, uci4routes, ubuilder, uroutes,
-  uroute_class, ubuilder_class, uci4api_class, uprg_class, uprg_api_items_class;
+  uconst, uci4routes, ubuilder, uroutes, uroute_class, ubuilder_class,
+  uci4api_class, uprg_class, uprg_api_items_class, udbtable_class, udmbase;
 
 type
 
@@ -92,7 +92,7 @@ var
   Application: TMyApplication;
 begin
   Application:=TMyApplication.Create(nil);
-  Application.Title:='Compiler Application';
+  Application.Title:='My Application';
   Application.Run;
   Application.Free;
 end.

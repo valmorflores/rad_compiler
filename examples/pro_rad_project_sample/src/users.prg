@@ -9,7 +9,7 @@ with method do {
 
 with sql do {
     base=default
-    table=usuarios
+    table=DBASGU.USUARIOS
     key=cd_usuario
     singlefields=
     filters=

@@ -5,7 +5,11 @@ unit uprg_class;
 interface
 
 uses
-  Classes, SysUtils, uroute_class, uroutes, uprg_api_items_class;
+  Classes, SysUtils,
+  uroute_class,
+  udbtable_class,
+  uroutes,
+  uprg_api_items_class;
 
   type TPrgClass = class
        private
@@ -109,6 +113,7 @@ var
   i: Integer;
   nLineCode: integer;
   slCode: TStringlist;
+  dbTable: TDBTableClass;
 begin
   // preset, declarations, params, start data and definitions
   nLineCode:= 0;
@@ -126,6 +131,8 @@ begin
         sqlTable:=trim( copy( FPrgFile[i], 11, 256 ) );
         writeln(FPrgFile[i]);
         writeln(sqlTable);
+        dbTable:= TDBTableClass.create;
+        dbTable.getStructure();
     end;
 
     if ('sql.key'=lowercase(copy(FPrgFile[i], 0, 7))) then
