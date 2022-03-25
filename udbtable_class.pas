@@ -60,12 +60,13 @@ var
   sqlGetTable: TSQLQuery;
   sqlTransaction: TSQLTransaction;
   cSQL: String;
+  DataModule1: TDataModule1;
 begin
   writeLn('Start database');
   if ( DataModule1 = nil ) then
   begin
     writeln( 'Datamodule disabled' );
-    //TDataModule1.Create;
+    DataModule1:= TDataModule1.Create(nil);
   end;
 
   if ( DataModule1 = nil ) then
@@ -74,16 +75,30 @@ begin
   end;
   //DataModule1.ODBCConnection1.connected:= true;
   writeLn('Start getting table structure');
-  {
+
   cSQL:= ' select * ' +
         ' from all_tab_cols ' +
         ' where  OWNER = ' + QuotedStr( 'DBASGU' ) + ' AND ' +
         '  table_name= ' + QuotedStr('USUARIOS') +
         ' ORDER BY COLUMN_ID';
-  }
-  {DataModule1.SQLQuery1.SQL.Add(cSQL);
-  DataModule1.SQLQuery1.Active:= true;
-  }
+
+  if DataModule1.SQLQuery1.active then
+  begin
+    writeln( 'SQL query closed' );
+  end;
+  writeln( 'Server connecting...' );
+  DataModule1.ODBCConnection1.Connected:= true;
+  writeln( 'Server connected succefully' );
+  writeLn(cSQL);
+  writeln( 'Table close' );
+  DataModule1.SQLQuery1.Close;
+  writeln( 'Table SQL clear' );
+  DataModule1.SQLQuery1.SQL.Clear;
+  writeln( 'Table SQL add' );
+  DataModule1.SQLQuery1.SQL.Add(cSQL);
+  writeln( 'Table open' );
+  DataModule1.SQLQuery1.Open;
+
   if DataModule1.SQLQuery1.active then
   begin
     writeln( 'Table active' );
